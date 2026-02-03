@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tanvi Marathon 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Comic Sans MS", "Arial Rounded MT Bold", cursive;
+  background: linear-gradient(135deg,#ff9acb,#ffc3e1);
+  color: #5a0033;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.card {
+  background: #fff0f6;
+  padding: 25px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(255,105,180,0.4);
+  position: relative;
+}
+
+.btn {
+  padding: 12px 28px;
+  border-radius: 30px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px;
+  font-size: 15px;
+  transition: all .2s ease;
+}
+
+.yes {
+  background: linear-gradient(135deg,#ff4d94,#ff85b3);
+  color: white;
+}
+.yes:hover { animation: shake .3s infinite; }
+
+.no {
+  background:#ffd6e8;
+  color:#b30059;
+}
+
+.hidden { display:none; }
+
+@keyframes shake {
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-3px)}
+  50%{transform:translateX(3px)}
+  75%{transform:translateX(-3px)}
+  100%{transform:translateX(0)}
+}
+
+#startNo, #noBtn {
+  position: fixed;
+  transition: left 0.2s ease, top 0.2s ease;
+}
+
+.emoji {
+  font-size:60px;
+  animation:dance .8s infinite alternate;
+}
+@keyframes dance {
+  from{transform:rotate(-10deg)}
+  to{transform:rotate(10deg)}
+}
+
+#shayariDisplay p {
+  font-size: 18px;
+  line-height: 1.6;
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#valentine span {
+  font-size: 14px;
+  opacity: 0.8;
+  animation: softBlink 1.5s infinite;
+}
+
+@keyframes softBlink {
+  0%,100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" src="music.mp3"></audio>
+
+<div class="card" id="welcome">
+  <h2>✨ As you know Tanvi is great ✨</h2>
+  <p>
+    To test your greatness, she is conducting one marathon 😌<br><br>
+    <strong>Logic optional, cuteness mandatory 💅</strong>
+  </p>
+  <button class="btn yes" onclick="startGame()">Start Game 🚀</button>
+  <button class="btn no" id="startNo">NO 🙄</button>
+</div>
+
+<div class="card hidden" id="quiz1">
+  <h2>❌ WRONG ANSWERS ONLY ❌</h2>
+  <p id="questionText"></p>
+  <div id="options"></div>
+</div>
+
+<div class="card hidden" id="askShayari">
+  <h2>Do you want to listen shayari ?? 🥹💗</h2>
+  <button class="btn yes" onclick="shayariYes()">Yes 😍</button>
+  <button class="btn no" onclick="location.reload()">No 😒</button>
+</div>
+
+<div class="card hidden" id="reallyShayari">
+  <h2>Pakki baat? 😏</h2>
+  <button class="btn yes" onclick="shayariReally()">Haan ji 💕</button>
+  <button class="btn no" onclick="location.reload()">Nahi 🙃</button>
+</div>
+
+<div class="card hidden" id="quizCountry">
+  <input id="country" placeholder="Which country do you live in? 🌍">
+  <br><br>
+  <button class="btn yes" onclick="checkCountry()">Submit ✨</button>
+</div>
+
+<div class="card hidden" id="shayariCard">
+  <h2>✨ Shayari Time ✨</h2>
+  <div id="shayariDisplay"></div>
+  <p>⏳ Sirf 10 seconds ka pyaar…</p>
+</div>
+
+<div class="card hidden" id="afterShayari">
+  <p>
+    Aww, thank you for listening 🥹💖<br><br>
+    <strong>Ab asli surprise baaki hai 😏</strong>
+  </p>
+  <button class="btn yes" onclick="goToBumper()">Continue 🎁</button>
+</div>
+
+<div class="card hidden" id="quizBJP">
+  <input id="bjp" placeholder="Full form of BJP 🤓">
+  <br><br>
+  <button class="btn yes" onclick="checkBJP()">Unlock 🔓</button>
+</div>
+
+<div class="card hidden" id="valentine">
+  <h2>
+    Will you be my Valentine? 💖<br>
+    <span>(If I am the first one to ask 😢)</span>
+  </h2>
+  <button class="btn yes" onclick="yesVal()">YES 🥰</button>
+  <button class="btn no" id="noBtn">NO 😶‍🌫️</button>
+</div>
+
+<div class="card hidden" id="success">
+  <div class="emoji">🎉💃🕺🎉</div>
+  <h1>GREAT CHOICE 🥹💖</h1>
+  <p>
+    You passed <strong>Tanvi’s Test</strong> 🏆✨<br>
+    Certified Cute + Smart 😌💅<br><br>
+    <span style="font-size:14px;">Mission Successful 💘</span>
+  </p>
+</div>
+
+<script>
+const music = document.getElementById("bgMusic");
+
+const startNo = document.getElementById("startNo");
+const startTexts = ["Nice try 😜","Really?? 🤨","No choice 😌","You wish 😏"];
+startNo.addEventListener("mouseenter", () => moveBtn(startNo, startTexts));
+
+function moveBtn(btn, texts){
+  btn.innerText = texts[Math.floor(Math.random()*texts.length)];
+  const w = btn.offsetWidth;
+  const h = btn.offsetHeight;
+  btn.style.left = Math.random()*(window.innerWidth - w - 10) + "px";
+  btn.style.top  = Math.random()*(window.innerHeight - h - 10) + "px";
+}
+
+function startGame(){
+  welcome.classList.add("hidden");
+  quiz1.classList.remove("hidden");
+  loadQuestion();
+}
+
+const questions=[
+ {q:"Are you a boy?",o:["YES","NO"],c:"NO"},
+ {q:"Student or employed?",o:["Student","Employed"],c:"Student"},
+ {q:"Eat daily?",o:["YES","NO"],c:"NO"},
+ {q:"Do you go to gym?",o:["YES","NO"],c:"NO"},
+ {q:"Do you poop daily?",o:["YES","NO"],c:"NO"}
+];
+let index=0;
+
+function loadQuestion(){
+ questionText.innerText=questions[index].q;
+ options.innerHTML="";
+ questions[index].o.forEach(opt=>{
+  let b=document.createElement("button");
+  b.className="btn "+(opt==="YES"||opt==="Student"?"yes":"no");
+  b.innerText=opt;
+  b.onclick=()=>checkAnswer(opt);
+  options.appendChild(b);
+ });
+}
+
+function checkAnswer(sel){
+ if(sel===questions[index].c){
+  index++;
+  if(index<questions.length) loadQuestion();
+  else{
+    quiz1.classList.add("hidden");
+    askShayari.classList.remove("hidden");
+  }
+ }
+}
+
+function shayariYes(){
+ askShayari.classList.add("hidden");
+ reallyShayari.classList.remove("hidden");
+}
+
+function shayariReally(){
+ reallyShayari.classList.add("hidden");
+ quizCountry.classList.remove("hidden");
+}
+
+function checkCountry(){
+ if(country.value.toLowerCase()==="india"){
+  quizCountry.classList.add("hidden");
+  shayariCard.classList.remove("hidden");
+
+  shayariDisplay.innerHTML = `
+    <p>
+      इत्तेफ़ाक़ से तो हम दोनों नहीं टकराए,<br>
+      कुछ तो साज़िश ख़ुदा की भी होगी... 💖
+    </p>
+  `;
+
+  music.currentTime = 0;
+  music.play();
+
+  setTimeout(()=>{
+    music.pause();
+    shayariCard.classList.add("hidden");
+    afterShayari.classList.remove("hidden");
+  },10000);
+ }
+}
+
+function goToBumper(){
+ afterShayari.classList.add("hidden");
+ quizBJP.classList.remove("hidden");
+}
+
+function checkBJP(){
+ if(bjp.value.toLowerCase()==="bharatiya janata party"){
+  quizBJP.classList.add("hidden");
+  valentine.classList.remove("hidden");
+  activateValentineNo();
+ }
+}
+
+function activateValentineNo(){
+ const noBtn=document.getElementById("noBtn");
+ const texts=["Nice try 😜","Really?? 🤨","Soch lo 🥹","Impossible 😌"];
+ ["mouseenter","mousedown","touchstart","click"].forEach(e=>{
+  noBtn.addEventListener(e,ev=>{
+    ev.preventDefault();
+    moveBtn(noBtn,texts);
+  });
+ });
+}
+
+function yesVal(){
+ valentine.classList.add("hidden");
+ success.classList.remove("hidden");
+ music.currentTime = 0;
+ music.play();
+ setTimeout(()=>{ music.pause(); },30000);
+}
+</script>
+
+</body>
+</html>
